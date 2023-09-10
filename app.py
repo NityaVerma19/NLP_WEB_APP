@@ -1,5 +1,6 @@
-from flask import Flask, render_template, request, redirect
+from flask import Flask, render_template, request, redirect, session
 #render template loads html files
+#if the user is logged, then only he can access profile. Session is used. 
 from db import Database
 import api
 app = Flask(__name__) #object of Flask class
@@ -48,21 +49,27 @@ def perform_login():
 
 @app.route('/profile')
 def profile():
-    return render_template('profile.html')
+   if session:
+        return render_template('profile.html')
+   else:
+       return redirect('/')
+
 
 @app.route('/ner')
 def ner():
-    return render_template('ner.html')
-
+    if session:
+        return render_template('ner.html')
+    else: 
+        return redirect ('/)
+        
 @app.route('/perform_ner', methods = ["post"])
 def perform_ner():
-    text = request.form.get('ner_text')
-    response = api.ner(text)
-
-
-
-    return render_template('ner.html', response = response)
-
+    if session: 
+        text = request.form.get('ner_text')
+        response = api.ner(text)
+        return render_template('ner.html', response = response)
+    else: 
+        return redirect ('/')
 app.run(debug = True) #baar baar run nahi karna padega. Reload karne par changes execute honge
 
 
